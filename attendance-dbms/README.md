@@ -2,36 +2,37 @@
 
 This project is a Database Management System (DBMS) designed to manage attendance records and identities. It provides functionalities to update attendance, add new identities, remove identities, and perform other critical database operations.
 
-## Features
-
-- **Attendance Management**: Update and retrieve attendance records.
-- **Identity Management**: Add, remove, and retrieve identity information.
-- **Database Connection**: Manage connections to the database with ease.
-- **Data Validation**: Ensure data integrity with built-in validation functions.
-
 ## Project Structure
 
 ```
 attendance-dbms
 ├── src
+│   ├── __init__.py
 │   ├── database
-│   │   ├── connection.py  # Manages database connections
-│   │   └── models.py      # Defines data models for Attendance and Identity
-│   ├── operations
-│   │   ├── attendance.py   # Manages attendance records
-│   │   ├── identity.py     # Manages identities
-│   │   └── query.py       # Utility functions for querying the database
+│   │   ├── __init__.py
+│   │   ├── connection.py
+│   │   └── models.py
+│   ├── services
+│   │   ├── __init__.py
+│   │   ├── attendance_service.py
+│   │   └── identity_service.py
 │   └── utils
-│       ├── config.py      # Configuration settings
-│       └── validators.py   # Data validation functions
+│       ├── __init__.py
+│       └── validators.py
 ├── tests
-│   ├── test_attendance.py  # Unit tests for AttendanceManager
-│   └── test_identity.py    # Unit tests for IdentityManager
-├── config.ini              # Configuration settings for the application
-├── requirements.txt        # Project dependencies
-├── setup.py                # Setup script for the project
-└── README.md               # Project documentation
+│   ├── __init__.py
+│   ├── test_attendance.py
+│   └── test_identity.py
+├── config.py
+├── requirements.txt
+└── README.md
 ```
+
+## Features
+
+- **Attendance Management**: Update and retrieve attendance records.
+- **Identity Management**: Add, remove, and retrieve identities.
+- **Database Connection**: Manage connections to the database with ease.
 
 ## Installation
 
@@ -50,26 +51,20 @@ attendance-dbms
 
 ## Usage
 
-To use the Attendance Database Management System, you can import the necessary classes from the `src` package and interact with the database as needed. For example:
+- To update attendance, use the `AttendanceService` class from the `services/attendance_service.py` file.
+- To manage identities, utilize the `IdentityService` class from the `services/identity_service.py` file.
 
-```python
-from src.operations.attendance import AttendanceManager
-from src.operations.identity import IdentityManager
+## Running Tests
 
-attendance_manager = AttendanceManager()
-identity_manager = IdentityManager()
-
-# Update attendance
-attendance_manager.update_attendance(student_id, date, status)
-
-# Add new identity
-identity_manager.add_identity(name, student_id)
+To ensure the functionality of the system, run the unit tests located in the `tests` directory:
+```
+pytest tests/
 ```
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a pull request or open an issue for any suggestions or improvements.
+Contributions are welcome! Please feel free to submit a pull request or open an issue for any enhancements or bug fixes.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License. See the LICENSE file for more details.

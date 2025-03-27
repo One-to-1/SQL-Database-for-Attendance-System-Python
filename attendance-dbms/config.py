@@ -1,0 +1,5 @@
+DATABASE_URL = "sqlite:///attendance.db"
+DATABASE_USER = "your_username"
+DATABASE_PASSWORD = "your_password"
+DATABASE_HOST = "localhost"
+DATABASE_PORT = "5432"

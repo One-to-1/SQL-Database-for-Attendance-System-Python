@@ -1,35 +1,35 @@
-def validate_identity_data(identity_data):
-    if not isinstance(identity_data, dict):
-        raise ValueError("Identity data must be a dictionary.")
+def validate_identity(identity):
+    if not isinstance(identity, dict):
+        raise ValueError("Identity must be a dictionary.")
     
-    required_fields = ['name', 'email', 'phone']
+    required_fields = ['id', 'name', 'email']
     for field in required_fields:
-        if field not in identity_data:
+        if field not in identity:
             raise ValueError(f"Missing required field: {field}")
     
-    if not isinstance(identity_data['name'], str) or not identity_data['name']:
-        raise ValueError("Name must be a non-empty string.")
+    if not isinstance(identity['id'], int) or identity['id'] <= 0:
+        raise ValueError("Identity ID must be a positive integer.")
     
-    if not isinstance(identity_data['email'], str) or "@" not in identity_data['email']:
-        raise ValueError("Email must be a valid email address.")
+    if not isinstance(identity['name'], str) or not identity['name']:
+        raise ValueError("Identity name must be a non-empty string.")
     
-    if not isinstance(identity_data['phone'], str) or not identity_data['phone'].isdigit():
-        raise ValueError("Phone must be a numeric string.")
+    if not isinstance(identity['email'], str) or '@' not in identity['email']:
+        raise ValueError("Identity email must be a valid email address.")
 
-def validate_attendance_data(attendance_data):
-    if not isinstance(attendance_data, dict):
-        raise ValueError("Attendance data must be a dictionary.")
+def validate_attendance(attendance):
+    if not isinstance(attendance, dict):
+        raise ValueError("Attendance must be a dictionary.")
     
     required_fields = ['identity_id', 'date', 'status']
     for field in required_fields:
-        if field not in attendance_data:
+        if field not in attendance:
             raise ValueError(f"Missing required field: {field}")
     
-    if not isinstance(attendance_data['identity_id'], int) or attendance_data['identity_id'] <= 0:
+    if not isinstance(attendance['identity_id'], int) or attendance['identity_id'] <= 0:
         raise ValueError("Identity ID must be a positive integer.")
     
-    if not isinstance(attendance_data['date'], str):
-        raise ValueError("Date must be a string.")
+    if not isinstance(attendance['date'], str) or not attendance['date']:
+        raise ValueError("Attendance date must be a non-empty string.")
     
-    if attendance_data['status'] not in ['present', 'absent']:
-        raise ValueError("Status must be either 'present' or 'absent'.")
+    if attendance['status'] not in ['present', 'absent']:
+        raise ValueError("Attendance status must be either 'present' or 'absent'.")

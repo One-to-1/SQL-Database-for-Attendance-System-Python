@@ -1,20 +1,25 @@
 import unittest
-from src.operations.attendance import AttendanceManager
+from src.services.attendance_service import AttendanceService
 
-class TestAttendanceManager(unittest.TestCase):
+class TestAttendanceService(unittest.TestCase):
 
     def setUp(self):
-        self.attendance_manager = AttendanceManager()
+        self.attendance_service = AttendanceService()
 
     def test_update_attendance(self):
-        # Assuming update_attendance returns True on success
-        result = self.attendance_manager.update_attendance('student_id', 'date', 'status')
+        # Assuming the method update_attendance returns True on success
+        result = self.attendance_service.update_attendance('student_id_1', '2023-10-01', True)
         self.assertTrue(result)
 
     def test_get_attendance(self):
-        # Assuming get_attendance returns a list of attendance records
-        records = self.attendance_manager.get_attendance('student_id')
+        # Assuming the method get_attendance returns a list of attendance records
+        records = self.attendance_service.get_attendance('student_id_1')
         self.assertIsInstance(records, list)
+
+    def test_update_attendance_invalid(self):
+        # Test with invalid data
+        result = self.attendance_service.update_attendance('invalid_id', '2023-10-01', True)
+        self.assertFalse(result)
 
 if __name__ == '__main__':
     unittest.main()

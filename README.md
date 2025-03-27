@@ -55,6 +55,7 @@ setup_database()
 │   └── utils/
 └── tests/
     ├── test_identity.py        # Identity service tests
+    ├── test_easy_api.py        # API tests
     └── test_attendance.py      # Attendance service tests
 ```
 

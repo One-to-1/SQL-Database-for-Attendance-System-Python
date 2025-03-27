@@ -4,13 +4,13 @@ Example script demonstrating the object-oriented approach with the SQL Database 
 
 from src.api.easy_api import (
     setup_database,
-    create_employee,
-    get_employee,
+    create_student,
+    get_student,
     record_check_in,
     record_check_out,
     get_attendance_history,
     get_attendance_report,
-    EmployeeData,
+    StudentData,
     mark_attendance
 )
 from datetime import datetime, timedelta
@@ -20,38 +20,38 @@ def main():
     print("Setting up the database...")
     setup_database()
     
-    # 1. Define employee objects first
-    print("\n1. Creating employees using EmployeeData class...")
-    first_employee = EmployeeData(
+    # 1. Define student objects first
+    print("\n1. Creating students using StudentData class...")
+    first_student = StudentData(
         name="Jane Doe",
         email="jane.doe@example.com",
-        employee_id="EMP002",
+        student_id="EMP002",
         phone="555-6789"
     )
     
-    second_employee = EmployeeData(
+    second_student = StudentData(
         name="John Smith",
         email="john.smith@example.com",
-        employee_id="EMP003",
+        student_id="EMP003",
         phone="555-1234"
     )
     
-    # 2. Create or retrieve employees
-    print("\n2. Registering employees in the system...")
-    employee1 = register_employee(first_employee)
-    employee2 = register_employee(second_employee)
+    # 2. Create or retrieve students
+    print("\n2. Registering students in the system...")
+    student1 = register_student(first_student)
+    student2 = register_student(second_student)
     
-    # 3. Record attendance for first employee
-    print(f"\n3. Recording check-in and check-out for {employee1.name}...")
+    # 3. Record attendance for first student
+    print(f"\n3. Recording check-in and check-out for {student1.name}...")
     try:
         # Check in
-        check_in_data = record_check_in(employee_id=employee1.employee_id)
+        check_in_data = record_check_in(student_id=student1.student_id)
         print(f"  Check-in recorded at: {check_in_data['check_in'].strftime('%H:%M:%S')}")
         
         # Simulate check-out 8 hours later
         check_out_time = datetime.now() + timedelta(hours=8)
         check_out_data = record_check_out(
-            employee_id=employee1.employee_id, 
+            student_id=student1.student_id, 
             check_out_time=check_out_time
         )
         print(f"  Check-out recorded at: {check_out_data['check_out'].strftime('%H:%M:%S')}")
@@ -60,21 +60,21 @@ def main():
     except ValueError as e:
         print(f"  Error: {e}")
     
-    # 4. Mark second employee as present without check-in/check-out
-    print(f"\n4. Marking attendance for {employee2.name}...")
+    # 4. Mark second student as present without check-in/check-out
+    print(f"\n4. Marking attendance for {student2.name}...")
     try:
         attendance_data = mark_attendance(
-            employee_id=employee2.employee_id,
+            student_id=student2.student_id,
             status="Present"
         )
         print(f"  Marked status: {attendance_data['status']}")
     except ValueError as e:
         print(f"  Error: {e}")
     
-    # 5. Get attendance history for first employee
-    print(f"\n5. Retrieving attendance history for {employee1.name}...")
+    # 5. Get attendance history for first student
+    print(f"\n5. Retrieving attendance history for {student1.name}...")
     try:
-        history = get_attendance_history(employee_id=employee1.employee_id)
+        history = get_attendance_history(student_id=student1.student_id)
         print(f"  Found {len(history)} attendance records:")
         for record in history:
             print(f"  Date: {record['date']}, Status: {record['status']}")
@@ -91,43 +91,43 @@ def main():
     print("\n6. Generating attendance report for today...")
     report = get_attendance_report()
     
-    print("\n  Present employees:")
-    for emp in report['present']:
-        print(f"    {emp['employee_name']} ({emp['employee_id']})")
-        if emp['hours_worked']:
-            print(f"      Hours: {emp['hours_worked']}")
+    print("\n  Present students:")
+    for student in report['present']:
+        print(f"    {student['student_name']} ({student['student_id']})")
+        if student['hours_worked']:
+            print(f"      Hours: {student['hours_worked']}")
     
-    print("\n  Absent employees:")
-    for emp in report['absent']:
-        print(f"    {emp['employee_name']} ({emp['employee_id']})")
+    print("\n  Absent students:")
+    for student in report['absent']:
+        print(f"    {student['student_name']} ({student['student_id']})")
     
     print("\nDone!")
 
 
-def register_employee(employee_data):
+def register_student(student_data):
     """
-    Register an employee in the system (create or retrieve if already exists)
+    Register a student in the system (create or retrieve if already exists)
     """
     try:
-        # Try to create a new employee
-        employee = create_employee(
-            name=employee_data.name,
-            email=employee_data.email,
-            employee_id=employee_data.employee_id,
-            phone=employee_data.phone
+        # Try to create a new student
+        student = create_student(
+            name=student_data.name,
+            email=student_data.email,
+            student_id=student_data.student_id,
+            phone=student_data.phone
         )
-        print(f"  Created: {employee}")
-        return employee
+        print(f"  Created: {student}")
+        return student
     except ValueError as e:
-        # Employee might already exist
+        # Student might already exist
         print(f"  Note: {str(e)}")
-        # Try to retrieve the existing employee
-        employee = get_employee(employee_id=employee_data.employee_id)
-        if employee:
-            print(f"  Found existing: {employee}")
-            return employee
+        # Try to retrieve the existing student
+        student = get_student(student_id=student_data.student_id)
+        if student:
+            print(f"  Found existing: {student}")
+            return student
         else:
-            raise ValueError(f"Could not create or retrieve employee {employee_data.employee_id}")
+            raise ValueError(f"Could not create or retrieve student {student_data.student_id}")
 
 
 if __name__ == "__main__":

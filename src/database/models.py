@@ -10,7 +10,7 @@ class Identity(Base):
     name = Column(String, nullable=False)
     email = Column(String, unique=True, index=True)
     phone = Column(String, nullable=True)
-    employee_id = Column(String, unique=True, index=True)
+    student_id = Column(String, unique=True, index=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     is_active = Column(Boolean, default=True)
     
@@ -18,7 +18,7 @@ class Identity(Base):
     attendances = relationship("Attendance", back_populates="identity", cascade="all, delete-orphan")
     
     def __repr__(self):
-        return f"<Identity {self.name} ({self.employee_id})>"
+        return f"<Identity {self.name} ({self.student_id})>"
 
 class Attendance(Base):
     __tablename__ = "attendances"

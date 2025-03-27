@@ -4,7 +4,7 @@ A comprehensive Python package for managing an attendance system using SQLAlchem
 
 ## Overview
 
-This package provides a robust solution for tracking employee attendance with features for managing identities and attendance records. The system uses SQLAlchemy for database operations and can be easily integrated into various Python applications.
+This package provides a robust solution for tracking student attendance with features for managing identities and attendance records. The system uses SQLAlchemy for database operations and can be easily integrated into various Python applications.
 
 ## Installation
 
@@ -68,54 +68,54 @@ The package offers a simplified API through the `src.api.easy_api` module, provi
 ```python
 from src.api.easy_api import (
     setup_database,
-    create_employee,
-    get_employee,
+    create_student,
+    get_student,
     record_check_in,
     record_check_out,
     get_attendance_history,
-    EmployeeData  # Object-oriented approach
+    StudentData  # Object-oriented approach
 )
 ```
 
-#### EmployeeData Class
+#### StudentData Class
 
-The `EmployeeData` class provides an object-oriented approach to working with employee records:
+The `StudentData` class provides an object-oriented approach to working with student records:
 
 ```python
-# Create employee object
-employee = EmployeeData(
+# Create student object
+student = StudentData(
     name="Jane Doe",
     email="jane.doe@example.com",
-    employee_id="EMP001",
+    student_id="EMP001",
     phone="555-1234"
 )
 
 # Convert from database model
-employee = EmployeeData.from_identity(identity_model)
+student = StudentData.from_identity(identity_model)
 
 # Convert to dictionary
-employee_dict = employee.to_dict()
+student_dict = student.to_dict()
 ```
 
 #### Database Setup
 
 - `setup_database()`: Initialize the database with all required tables
 
-#### Employee Management
+#### Student Management
 
-- `create_employee(name, email, employee_id, phone=None)`: Create a new employee
-- `get_employee(employee_id=None, email=None)`: Get an employee by ID or email
-- `update_employee(employee_id, name=None, email=None, phone=None)`: Update employee details
-- `deactivate_employee(employee_id)`: Deactivate an employee (soft delete)
-- `reactivate_employee(employee_id)`: Reactivate a previously deactivated employee
-- `get_all_employees(include_inactive=False)`: Get all employees
+- `create_student(name, email, student_id, phone=None)`: Create a new student
+- `get_student(student_id=None, email=None)`: Get an student by ID or email
+- `update_student(student_id, name=None, email=None, phone=None)`: Update student details
+- `deactivate_student(student_id)`: Deactivate an student (soft delete)
+- `reactivate_student(student_id)`: Reactivate a previously deactivated student
+- `get_all_students(include_inactive=False)`: Get all students
 
 #### Attendance Management
 
-- `record_check_in(employee_id, check_in_time=None)`: Record employee check-in
-- `record_check_out(employee_id, check_out_time=None)`: Record employee check-out
-- `mark_attendance(employee_id, attendance_date=None, status="Present")`: Mark attendance for a date
-- `get_attendance_history(employee_id, start_date=None, end_date=None)`: Get attendance history
+- `record_check_in(student_id, check_in_time=None)`: Record student check-in
+- `record_check_out(student_id, check_out_time=None)`: Record student check-out
+- `mark_attendance(student_id, attendance_date=None, status="Present")`: Mark attendance for a date
+- `get_attendance_history(student_id, start_date=None, end_date=None)`: Get attendance history
 - `get_attendance_report(report_date=None, include_inactive=False)`: Generate attendance report
 
 ### Advanced API
@@ -126,14 +126,14 @@ For more advanced usage, the package also provides direct access to the underlyi
 
 ##### Identity
 
-The `Identity` model represents an employee or user in the system.
+The `Identity` model represents an student or user in the system.
 
 **Attributes:**
 - `id`: Primary key
-- `name`: Employee name
+- `name`: Student name
 - `email`: Unique email address
 - `phone`: Optional phone number
-- `employee_id`: Unique employee identifier
+- `student_id`: Unique student identifier
 - `created_at`: Creation timestamp
 - `is_active`: Boolean flag for active status
 
@@ -151,7 +151,7 @@ The `Attendance` model represents attendance records for identities.
 
 #### Identity Service
 
-The `IdentityService` class provides methods for managing employee identities.
+The `IdentityService` class provides methods for managing student identities.
 
 ```python
 from sqlalchemy.orm import Session
@@ -166,12 +166,12 @@ identity_service = IdentityService(db_session)
 
 - `get_all_identities(skip=0, limit=100)`: Retrieve all identities with pagination
 - `get_identity_by_id(identity_id)`: Retrieve an identity by ID
-- `get_identity_by_employee_id(employee_id)`: Retrieve an identity by employee ID
+- `get_identity_by_student_id(student_id)`: Retrieve an identity by student ID
 - `get_identity_by_email(email)`: Retrieve an identity by email
-- `create_identity(name, email, employee_id, phone=None, is_active=True)`: Create a new identity
-- `create_identity_from_object(employee_data)`: Create a new identity from an employee data object
+- `create_identity(name, email, student_id, phone=None, is_active=True)`: Create a new identity
+- `create_identity_from_object(student_data)`: Create a new identity from an student data object
 - `update_identity(identity_id, **kwargs)`: Update an identity's attributes
-- `update_identity_from_object(identity_id, employee_data)`: Update an identity using an employee data object
+- `update_identity_from_object(identity_id, student_data)`: Update an identity using an student data object
 - `deactivate_identity(identity_id)`: Mark an identity as inactive
 - `reactivate_identity(identity_id)`: Reactivate a previously deactivated identity
 - `delete_identity(identity_id)`: Permanently delete an identity
@@ -208,78 +208,78 @@ attendance_service = AttendanceService(db_session)
 ```python
 from src.api.easy_api import (
     setup_database,
-    create_employee,
-    get_employee,
+    create_student,
+    get_student,
     record_check_in,
     record_check_out,
     get_attendance_history,
     mark_attendance,
     get_attendance_report,
-    EmployeeData
+    StudentData
 )
 from datetime import datetime, timedelta
 
 # Setup the database
 setup_database()
 
-# Create employee objects
-first_employee = EmployeeData(
+# Create student objects
+first_student = StudentData(
     name="Jane Doe",
     email="jane.doe@example.com",
-    employee_id="EMP002",
+    student_id="EMP002",
     phone="555-6789"
 )
 
-second_employee = EmployeeData(
+second_student = StudentData(
     name="John Smith",
     email="john.smith@example.com",
-    employee_id="EMP003",
+    student_id="EMP003",
     phone="555-1234"
 )
 
-# Helper function to register employees
-def register_employee(employee_data):
+# Helper function to register students
+def register_student(student_data):
     try:
-        # Try to create a new employee
-        employee = create_employee(
-            name=employee_data.name,
-            email=employee_data.email,
-            employee_id=employee_data.employee_id,
-            phone=employee_data.phone
+        # Try to create a new student
+        student = create_student(
+            name=student_data.name,
+            email=student_data.email,
+            student_id=student_data.student_id,
+            phone=student_data.phone
         )
-        return employee
+        return student
     except ValueError:
-        # Employee might already exist
-        employee = get_employee(employee_id=employee_data.employee_id)
-        if employee:
-            return employee
+        # Student might already exist
+        student = get_student(student_id=student_data.student_id)
+        if student:
+            return student
         else:
-            raise ValueError(f"Could not create/retrieve employee {employee_data.employee_id}")
+            raise ValueError(f"Could not create/retrieve student {student_data.student_id}")
 
-# Register employees
-employee1 = register_employee(first_employee)
-employee2 = register_employee(second_employee)
+# Register students
+student1 = register_student(first_student)
+student2 = register_student(second_student)
 
-# Record check-in and check-out for first employee
-check_in_data = record_check_in(employee_id=employee1.employee_id)
+# Record check-in and check-out for first student
+check_in_data = record_check_in(student_id=student1.student_id)
 print(f"Check-in recorded at: {check_in_data['check_in']}")
 
 # Record check-out (8 hours later)
 check_out_time = datetime.now() + timedelta(hours=8)
 check_out_data = record_check_out(
-    employee_id=employee1.employee_id,
+    student_id=student1.student_id,
     check_out_time=check_out_time
 )
 print(f"Check-out recorded at: {check_out_data['check_out']}")
 
-# Mark attendance for second employee without check-in/check-out details
+# Mark attendance for second student without check-in/check-out details
 mark_attendance(
-    employee_id=employee2.employee_id,
+    student_id=student2.student_id,
     status="Present"
 )
 
 # Get attendance history
-history = get_attendance_history(employee_id=employee1.employee_id)
+history = get_attendance_history(student_id=student1.student_id)
 for record in history:
     print(f"Date: {record['date']}, Status: {record['status']}")
     if record['hours_worked']:
@@ -287,8 +287,8 @@ for record in history:
 
 # Generate an attendance report for today
 report = get_attendance_report()
-print(f"Present employees: {len(report['present'])}")
-print(f"Absent employees: {len(report['absent'])}")
+print(f"Present students: {len(report['present'])}")
+print(f"Absent students: {len(report['absent'])}")
 ```
 
 ### Using the Simplified API (Procedural Style)
@@ -296,8 +296,8 @@ print(f"Absent employees: {len(report['absent'])}")
 ```python
 from src.api.easy_api import (
     setup_database,
-    create_employee,
-    get_employee,
+    create_student,
+    get_student,
     record_check_in,
     record_check_out,
     get_attendance_history,
@@ -308,31 +308,31 @@ from datetime import datetime, timedelta
 # Setup the database (only needed once)
 setup_database()
 
-# Create a new employee
+# Create a new student
 try:
-    employee = create_employee(
+    student = create_student(
         name="John Smith", 
         email="john.smith@example.com", 
-        employee_id="EMP003", 
+        student_id="EMP003", 
         phone="555-4321"
     )
-    print(f"Created employee: {employee}")
+    print(f"Created student: {student}")
 except ValueError as e:
-    # Handle the case where the employee might already exist
-    employee = get_employee(employee_id="EMP003")
-    print(f"Found existing employee: {employee}")
+    # Handle the case where the student might already exist
+    student = get_student(student_id="EMP003")
+    print(f"Found existing student: {student}")
 
 # Record check-in
-check_in_data = record_check_in(employee_id="EMP003")
+check_in_data = record_check_in(student_id="EMP003")
 print(f"Check-in recorded at: {check_in_data['check_in']}")
 
 # Record check-out (8 hours later)
 check_out_time = datetime.now() + timedelta(hours=8)
-check_out_data = record_check_out(employee_id="EMP003", check_out_time=check_out_time)
+check_out_data = record_check_out(student_id="EMP003", check_out_time=check_out_time)
 print(f"Check-out recorded at: {check_out_data['check_out']}")
 
 # Get attendance history
-history = get_attendance_history(employee_id="EMP003")
+history = get_attendance_history(student_id="EMP003")
 for record in history:
     print(f"Date: {record['date']}, Status: {record['status']}")
     if record['hours_worked']:
@@ -340,8 +340,8 @@ for record in history:
 
 # Generate an attendance report for today
 report = get_attendance_report()
-print(f"Present employees: {len(report['present'])}")
-print(f"Absent employees: {len(report['absent'])}")
+print(f"Present students: {len(report['present'])}")
+print(f"Absent students: {len(report['absent'])}")
 ```
 
 ### Advanced Object-Oriented Approach with Service Classes
@@ -353,12 +353,12 @@ from sqlalchemy.orm import Session
 from src.database.connection import SessionLocal
 from src.services.identity_service import IdentityService
 
-# Custom employee data class
-class EmployeeData:
-    def __init__(self, name, email, employee_id, phone=None, is_active=True):
+# Custom student data class
+class StudentData:
+    def __init__(self, name, email, student_id, phone=None, is_active=True):
         self.name = name
         self.email = email
-        self.employee_id = employee_id
+        self.student_id = student_id
         self.phone = phone
         self.is_active = is_active
         
@@ -366,18 +366,18 @@ class EmployeeData:
         return {
             'name': self.name,
             'email': self.email,
-            'employee_id': self.employee_id,
+            'student_id': self.student_id,
             'phone': self.phone,
             'is_active': self.is_active
         }
         
     @classmethod
     def from_identity(cls, identity):
-        """Create an EmployeeData object from an Identity database model"""
+        """Create an StudentData object from an Identity database model"""
         return cls(
             name=identity.name,
             email=identity.email,
-            employee_id=identity.employee_id,
+            student_id=identity.student_id,
             phone=identity.phone,
             is_active=identity.is_active
         )
@@ -386,32 +386,32 @@ class EmployeeData:
 db = SessionLocal()
 identity_service = IdentityService(db)
 
-# Create a new employee object
-employee_data = EmployeeData(
+# Create a new student object
+student_data = StudentData(
     name="John Doe",
     email="john.doe@example.com",
-    employee_id="EMP001",
+    student_id="EMP001",
     phone="555-123-4567"
 )
 
-# Method 1: Create identity directly from the employee object
-identity = identity_service.create_identity_from_object(employee_data)
+# Method 1: Create identity directly from the student object
+identity = identity_service.create_identity_from_object(student_data)
 
-# Method 2: Create identity by unpacking the employee object
-# identity = identity_service.create_identity(**employee_data.to_dict())
+# Method 2: Create identity by unpacking the student object
+# identity = identity_service.create_identity(**student_data.to_dict())
 
-# Update an employee's information with a new object
-updated_data = EmployeeData(
+# Update an student's information with a new object
+updated_data = StudentData(
     name="John M. Doe",
     email="john.doe@example.com",
-    employee_id="EMP001",
+    student_id="EMP001",
     phone="555-987-6543"
 )
 updated_identity = identity_service.update_identity_from_object(identity.id, updated_data)
 
-# Find an identity and convert back to an employee object
-db_identity = identity_service.get_identity_by_employee_id("EMP001")
-retrieved_employee = EmployeeData.from_identity(db_identity)
+# Find an identity and convert back to an student object
+db_identity = identity_service.get_identity_by_student_id("EMP001")
+retrieved_student = StudentData.from_identity(db_identity)
 ```
 
 ### Managing Attendance Records (Advanced)
@@ -428,7 +428,7 @@ attendance_service = AttendanceService(db)
 
 # Record a check-in for today
 attendance = attendance_service.record_check_in(
-    identity_id=1,  # Employee ID from the identity table
+    identity_id=1,  # Student ID from the identity table
     check_in_time=datetime.now()
 )
 
@@ -445,7 +445,7 @@ custom_attendance = attendance_service.create_attendance(
     status="Present"
 )
 
-# Get attendance history for an employee
+# Get attendance history for an student
 history = attendance_service.get_attendance_by_identity(1)
 
 # Get attendance within a date range

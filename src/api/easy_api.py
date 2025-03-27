@@ -48,59 +48,59 @@ def get_session():
         db.close()
 
 
-class EmployeeData:
-    """Class representing employee data for creating or retrieving identity records"""
-    def __init__(self, name: str, email: str, employee_id: str, phone: str = None, is_active: bool = True):
+class StudentData:
+    """Class representing student data for creating or retrieving identity records"""
+    def __init__(self, name: str, email: str, student_id: str, phone: str = None, is_active: bool = True):
         self.name = name
         self.email = email
-        self.employee_id = employee_id
+        self.student_id = student_id
         self.phone = phone
         self.is_active = is_active
         
     def to_dict(self) -> Dict[str, Any]:
-        """Convert employee data to dictionary for database operations"""
+        """Convert student data to dictionary for database operations"""
         return {
             'name': self.name,
             'email': self.email,
-            'employee_id': self.employee_id,
+            'student_id': self.student_id,
             'phone': self.phone,
             'is_active': self.is_active
         }
         
     @classmethod
     def from_identity(cls, identity: Identity):
-        """Create an EmployeeData object from an Identity database model"""
+        """Create a StudentData object from an Identity database model"""
         if not identity:
             return None
         return cls(
             name=identity.name,
             email=identity.email,
-            employee_id=identity.employee_id,
+            student_id=identity.student_id,
             phone=identity.phone,
             is_active=identity.is_active
         )
     
     def __str__(self) -> str:
-        return f"Employee: {self.name} ({self.employee_id})"
+        return f"Student: {self.name} ({self.student_id})"
 
 
-# ========== EMPLOYEE MANAGEMENT FUNCTIONS ==========
+# ========== STUDENT MANAGEMENT FUNCTIONS ==========
 
-def create_employee(name: str, email: str, employee_id: str, phone: str = None) -> EmployeeData:
+def create_student(name: str, email: str, student_id: str, phone: str = None) -> StudentData:
     """
-    Create a new employee in the database.
+    Create a new student in the database.
     
     Args:
-        name: Employee's full name
-        email: Employee's email address
-        employee_id: Unique employee identifier
+        name: Student's full name
+        email: Student's email address
+        student_id: Unique student identifier
         phone: Optional phone number
         
     Returns:
-        EmployeeData object for the new employee
+        StudentData object for the new student
         
     Raises:
-        ValueError: If an employee with the same email or employee_id already exists
+        ValueError: If a student with the same email or student_id already exists
     """
     with get_session() as session:
         identity_service = IdentityService(session)
@@ -109,67 +109,67 @@ def create_employee(name: str, email: str, employee_id: str, phone: str = None) 
             identity = identity_service.create_identity(
                 name=name,
                 email=email,
-                employee_id=employee_id,
+                student_id=student_id,
                 phone=phone
             )
-            return EmployeeData.from_identity(identity)
+            return StudentData.from_identity(identity)
         except Exception as e:
-            raise ValueError(f"Failed to create employee: {str(e)}")
+            raise ValueError(f"Failed to create student: {str(e)}")
 
 
-def get_employee(employee_id: str = None, email: str = None) -> Optional[EmployeeData]:
+def get_student(student_id: str = None, email: str = None) -> Optional[StudentData]:
     """
-    Get an employee by employee ID or email.
+    Get a student by student ID or email.
     
     Args:
-        employee_id: Employee's unique identifier
-        email: Employee's email address
+        student_id: Student's unique identifier
+        email: Student's email address
         
     Returns:
-        EmployeeData object if found, None otherwise
+        StudentData object if found, None otherwise
         
     Note:
-        At least one of employee_id or email must be provided
+        At least one of student_id or email must be provided
     """
-    if not employee_id and not email:
-        raise ValueError("Either employee_id or email must be provided")
+    if not student_id and not email:
+        raise ValueError("Either student_id or email must be provided")
         
     with get_session() as session:
         identity_service = IdentityService(session)
         
         identity = None
-        if employee_id:
-            identity = identity_service.get_identity_by_employee_id(employee_id)
+        if student_id:
+            identity = identity_service.get_identity_by_student_id(student_id)
         
         if not identity and email:
             identity = identity_service.get_identity_by_email(email)
             
-        return EmployeeData.from_identity(identity)
+        return StudentData.from_identity(identity)
 
 
-def update_employee(
-    employee_id: str, 
+def update_student(
+    student_id: str, 
     name: str = None, 
     email: str = None, 
     phone: str = None
-) -> Optional[EmployeeData]:
+) -> Optional[StudentData]:
     """
-    Update an employee's information.
+    Update a student's information.
     
     Args:
-        employee_id: Employee's unique identifier
+        student_id: Student's unique identifier
         name: New name (optional)
         email: New email (optional)
         phone: New phone (optional)
         
     Returns:
-        Updated EmployeeData object if successful, None if employee not found
+        Updated StudentData object if successful, None if student not found
     """
     with get_session() as session:
         identity_service = IdentityService(session)
         
-        # Get the identity by employee ID
-        identity = identity_service.get_identity_by_employee_id(employee_id)
+        # Get the identity by student ID
+        identity = identity_service.get_identity_by_student_id(student_id)
         if not identity:
             return None
             
@@ -185,26 +185,26 @@ def update_employee(
         # Update if there's data to update
         if update_data:
             updated_identity = identity_service.update_identity(identity.id, **update_data)
-            return EmployeeData.from_identity(updated_identity)
+            return StudentData.from_identity(updated_identity)
         
-        return EmployeeData.from_identity(identity)
+        return StudentData.from_identity(identity)
 
 
-def deactivate_employee(employee_id: str) -> bool:
+def deactivate_student(student_id: str) -> bool:
     """
-    Deactivate an employee (soft delete).
+    Deactivate a student (soft delete).
     
     Args:
-        employee_id: Employee's unique identifier
+        student_id: Student's unique identifier
         
     Returns:
-        True if successful, False if employee not found
+        True if successful, False if student not found
     """
     with get_session() as session:
         identity_service = IdentityService(session)
         
-        # Get the identity by employee ID
-        identity = identity_service.get_identity_by_employee_id(employee_id)
+        # Get the identity by student ID
+        identity = identity_service.get_identity_by_student_id(student_id)
         if not identity:
             return False
             
@@ -213,21 +213,21 @@ def deactivate_employee(employee_id: str) -> bool:
         return True
 
 
-def reactivate_employee(employee_id: str) -> bool:
+def reactivate_student(student_id: str) -> bool:
     """
-    Reactivate a previously deactivated employee.
+    Reactivate a previously deactivated student.
     
     Args:
-        employee_id: Employee's unique identifier
+        student_id: Student's unique identifier
         
     Returns:
-        True if successful, False if employee not found
+        True if successful, False if student not found
     """
     with get_session() as session:
         identity_service = IdentityService(session)
         
-        # Get the identity by employee ID
-        identity = identity_service.get_identity_by_employee_id(employee_id)
+        # Get the identity by student ID
+        identity = identity_service.get_identity_by_student_id(student_id)
         if not identity:
             return False
             
@@ -236,15 +236,15 @@ def reactivate_employee(employee_id: str) -> bool:
         return True
 
 
-def get_all_employees(include_inactive: bool = False) -> List[EmployeeData]:
+def get_all_students(include_inactive: bool = False) -> List[StudentData]:
     """
-    Get all employees in the system.
+    Get all students in the system.
     
     Args:
-        include_inactive: Whether to include deactivated employees
+        include_inactive: Whether to include deactivated students
         
     Returns:
-        List of EmployeeData objects
+        List of StudentData objects
     """
     with get_session() as session:
         identity_service = IdentityService(session)
@@ -256,28 +256,28 @@ def get_all_employees(include_inactive: bool = False) -> List[EmployeeData]:
         if not include_inactive:
             identities = [i for i in identities if i.is_active]
             
-        # Convert to EmployeeData objects
-        return [EmployeeData.from_identity(i) for i in identities]
+        # Convert to StudentData objects
+        return [StudentData.from_identity(i) for i in identities]
 
 
 # ========== ATTENDANCE MANAGEMENT FUNCTIONS ==========
 
 def record_check_in(
-    employee_id: str, 
+    student_id: str, 
     check_in_time: datetime = None
 ) -> Dict[str, Any]:
     """
-    Record an employee check-in.
+    Record a student check-in.
     
     Args:
-        employee_id: Employee's unique identifier
+        student_id: Student's unique identifier
         check_in_time: Check-in time (defaults to current time)
         
     Returns:
         Dictionary with attendance details
         
     Raises:
-        ValueError: If employee not found or check-in failed
+        ValueError: If student not found or check-in failed
     """
     if check_in_time is None:
         check_in_time = datetime.now()
@@ -288,10 +288,10 @@ def record_check_in(
         identity_service = IdentityService(session)
         attendance_service = AttendanceService(session)
         
-        # Get the identity by employee ID
-        identity = identity_service.get_identity_by_employee_id(employee_id)
+        # Get the identity by student ID
+        identity = identity_service.get_identity_by_student_id(student_id)
         if not identity:
-            raise ValueError(f"Employee with ID {employee_id} not found")
+            raise ValueError(f"Student with ID {student_id} not found")
             
         try:
             # Record check-in
@@ -303,8 +303,8 @@ def record_check_in(
             
             # Return attendance details
             return {
-                'employee_id': employee_id,
-                'employee_name': identity.name,
+                'student_id': student_id,
+                'student_name': identity.name,
                 'date': attendance.date,
                 'check_in': attendance.check_in,
                 'check_out': attendance.check_out,
@@ -315,21 +315,21 @@ def record_check_in(
 
 
 def record_check_out(
-    employee_id: str, 
+    student_id: str, 
     check_out_time: datetime = None
 ) -> Dict[str, Any]:
     """
-    Record an employee check-out.
+    Record a student check-out.
     
     Args:
-        employee_id: Employee's unique identifier
+        student_id: Student's unique identifier
         check_out_time: Check-out time (defaults to current time)
         
     Returns:
         Dictionary with attendance details
         
     Raises:
-        ValueError: If employee not found, no check-in record, or check-out failed
+        ValueError: If student not found, no check-in record, or check-out failed
     """
     if check_out_time is None:
         check_out_time = datetime.now()
@@ -340,10 +340,10 @@ def record_check_out(
         identity_service = IdentityService(session)
         attendance_service = AttendanceService(session)
         
-        # Get the identity by employee ID
-        identity = identity_service.get_identity_by_employee_id(employee_id)
+        # Get the identity by student ID
+        identity = identity_service.get_identity_by_student_id(student_id)
         if not identity:
-            raise ValueError(f"Employee with ID {employee_id} not found")
+            raise ValueError(f"Student with ID {student_id} not found")
             
         try:
             # Record check-out
@@ -355,8 +355,8 @@ def record_check_out(
             
             # Return attendance details
             return {
-                'employee_id': employee_id,
-                'employee_name': identity.name,
+                'student_id': student_id,
+                'student_name': identity.name,
                 'date': attendance.date,
                 'check_in': attendance.check_in,
                 'check_out': attendance.check_out,
@@ -367,15 +367,15 @@ def record_check_out(
 
 
 def get_attendance_history(
-    employee_id: str, 
+    student_id: str, 
     start_date: date = None, 
     end_date: date = None
 ) -> List[Dict[str, Any]]:
     """
-    Get attendance history for an employee.
+    Get attendance history for a student.
     
     Args:
-        employee_id: Employee's unique identifier
+        student_id: Student's unique identifier
         start_date: Start date for the history (defaults to 30 days ago)
         end_date: End date for the history (defaults to today)
         
@@ -383,7 +383,7 @@ def get_attendance_history(
         List of attendance records
         
     Raises:
-        ValueError: If employee not found
+        ValueError: If student not found
     """
     if end_date is None:
         end_date = date.today()
@@ -395,10 +395,10 @@ def get_attendance_history(
         identity_service = IdentityService(session)
         attendance_service = AttendanceService(session)
         
-        # Get the identity by employee ID
-        identity = identity_service.get_identity_by_employee_id(employee_id)
+        # Get the identity by student ID
+        identity = identity_service.get_identity_by_student_id(student_id)
         if not identity:
-            raise ValueError(f"Employee with ID {employee_id} not found")
+            raise ValueError(f"Student with ID {student_id} not found")
             
         # Get attendance history
         attendance_records = attendance_service.get_attendance_by_date_range(
@@ -410,8 +410,8 @@ def get_attendance_history(
         # Convert to dictionaries
         return [
             {
-                'employee_id': employee_id,
-                'employee_name': identity.name,
+                'student_id': student_id,
+                'student_name': identity.name,
                 'date': record.date,
                 'check_in': record.check_in,
                 'check_out': record.check_out,
@@ -423,15 +423,15 @@ def get_attendance_history(
 
 
 def mark_attendance(
-    employee_id: str,
+    student_id: str,
     attendance_date: date = None,
     status: str = "Present"
 ) -> Dict[str, Any]:
     """
-    Mark attendance for an employee on a specific date.
+    Mark attendance for a student on a specific date.
     
     Args:
-        employee_id: Employee's unique identifier
+        student_id: Student's unique identifier
         attendance_date: Date for the attendance (defaults to today)
         status: Attendance status (e.g., "Present", "Absent", "Leave")
         
@@ -439,7 +439,7 @@ def mark_attendance(
         Dictionary with attendance details
         
     Raises:
-        ValueError: If employee not found or attendance marking failed
+        ValueError: If student not found or attendance marking failed
     """
     if attendance_date is None:
         attendance_date = date.today()
@@ -448,10 +448,10 @@ def mark_attendance(
         identity_service = IdentityService(session)
         attendance_service = AttendanceService(session)
         
-        # Get the identity by employee ID
-        identity = identity_service.get_identity_by_employee_id(employee_id)
+        # Get the identity by student ID
+        identity = identity_service.get_identity_by_student_id(student_id)
         if not identity:
-            raise ValueError(f"Employee with ID {employee_id} not found")
+            raise ValueError(f"Student with ID {student_id} not found")
             
         try:
             # Check if attendance record already exists for this date
@@ -479,8 +479,8 @@ def mark_attendance(
             
             # Return attendance details
             return {
-                'employee_id': employee_id,
-                'employee_name': identity.name,
+                'student_id': student_id,
+                'student_name': identity.name,
                 'date': attendance.date,
                 'check_in': attendance.check_in,
                 'check_out': attendance.check_out,
@@ -495,11 +495,11 @@ def get_attendance_report(
     include_inactive: bool = False
 ) -> Dict[str, List[Dict[str, Any]]]:
     """
-    Get attendance report for all employees on a specific date.
+    Get attendance report for all students on a specific date.
     
     Args:
         report_date: Date for the report (defaults to today)
-        include_inactive: Whether to include deactivated employees
+        include_inactive: Whether to include deactivated students
         
     Returns:
         Dictionary with attendance summary grouped by status
@@ -535,8 +535,8 @@ def get_attendance_report(
             attendance = attendance_lookup.get(identity.id)
             
             attendance_data = {
-                'employee_id': identity.employee_id,
-                'employee_name': identity.name,
+                'student_id': identity.student_id,
+                'student_name': identity.name,
                 'date': report_date,
                 'check_in': attendance.check_in if attendance else None,
                 'check_out': attendance.check_out if attendance else None,

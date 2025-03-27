@@ -34,7 +34,7 @@ def sample_identity(identity_service):
     identity = identity_service.create_identity(
         name="John Doe",
         email="john.doe@example.com",
-        employee_id="EMP001",
+        student_id="EMP001",
         phone="555-1234"
     )
     return identity
@@ -43,14 +43,14 @@ def test_create_identity(identity_service):
     identity = identity_service.create_identity(
         name="Jane Doe",
         email="jane.doe@example.com",
-        employee_id="EMP002",
+        student_id="EMP002",
         phone="555-5678"
     )
     
     assert identity.id is not None
     assert identity.name == "Jane Doe"
     assert identity.email == "jane.doe@example.com"
-    assert identity.employee_id == "EMP002"
+    assert identity.student_id == "EMP002"
     assert identity.phone == "555-5678"
     assert identity.is_active == True
 
@@ -69,12 +69,12 @@ def test_get_identity_by_email(identity_service, sample_identity):
     assert identity.id == sample_identity.id
     assert identity.email == sample_identity.email
 
-def test_get_identity_by_employee_id(identity_service, sample_identity):
-    identity = identity_service.get_identity_by_employee_id(sample_identity.employee_id)
+def test_get_identity_by_student_id(identity_service, sample_identity):
+    identity = identity_service.get_identity_by_student_id(sample_identity.student_id)
     
     assert identity is not None
     assert identity.id == sample_identity.id
-    assert identity.employee_id == sample_identity.employee_id
+    assert identity.student_id == sample_identity.student_id
 
 def test_update_identity(identity_service, sample_identity):
     updated = identity_service.update_identity(
@@ -120,6 +120,6 @@ def test_duplicate_email_raises_error(identity_service, sample_identity):
         identity_service.create_identity(
             name="Another Person",
             email=sample_identity.email,  # Same email as existing identity
-            employee_id="EMP003",
+            student_id="EMP003",
             phone="555-0000"
         )

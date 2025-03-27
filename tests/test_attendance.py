@@ -39,7 +39,7 @@ def sample_identity(identity_service):
     identity = identity_service.create_identity(
         name="John Doe",
         email="john.doe@example.com",
-        employee_id="EMP001",
+        student_id="EMP001",
         phone="555-1234"
     )
     return identity

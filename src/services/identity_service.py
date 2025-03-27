@@ -28,11 +28,11 @@ class IdentityService:
         """
         return self.db.query(Identity).filter(Identity.id == identity_id).first()
     
-    def get_identity_by_employee_id(self, employee_id: str):
+    def get_identity_by_student_id(self, student_id: str):
         """
-        Retrieve an identity by its employee ID
+        Retrieve an identity by its student ID
         """
-        return self.db.query(Identity).filter(Identity.employee_id == employee_id).first()
+        return self.db.query(Identity).filter(Identity.student_id == student_id).first()
     
     def get_identity_by_email(self, email: str):
         """
@@ -40,19 +40,19 @@ class IdentityService:
         """
         return self.db.query(Identity).filter(Identity.email == email).first()
     
-    def create_identity(self, name: str, email: str, employee_id: str, phone: str = None, is_active: bool = True):
+    def create_identity(self, name: str, email: str, student_id: str, phone: str = None, is_active: bool = True):
         """
         Create a new identity in the database
         
-        Can be called with individual parameters or by unpacking an EmployeeData object:
-        service.create_identity(**employee_data.to_dict())
+        Can be called with individual parameters or by unpacking a StudentData object:
+        service.create_identity(**student_data.to_dict())
         """
         try:
             identity = Identity(
                 name=name,
                 email=email,
                 phone=phone,
-                employee_id=employee_id,
+                student_id=student_id,
                 created_at=datetime.utcnow(),
                 is_active=is_active
             )
@@ -62,31 +62,31 @@ class IdentityService:
             return identity
         except IntegrityError:
             self.db.rollback()
-            raise ValueError("Identity with this email or employee ID already exists")
+            raise ValueError("Identity with this email or student ID already exists")
     
-    def create_identity_from_object(self, employee_data):
+    def create_identity_from_object(self, student_data):
         """
-        Create a new identity from an employee data object
+        Create a new identity from a student data object
         
-        employee_data should have attributes: name, email, employee_id, and optionally phone and is_active
+        student_data should have attributes: name, email, student_id, and optionally phone and is_active
         """
         try:
-            # Extract attributes from the employee data object
-            if hasattr(employee_data, 'to_dict'):
+            # Extract attributes from the student data object
+            if hasattr(student_data, 'to_dict'):
                 # If the object has a to_dict method, use it
-                data_dict = employee_data.to_dict()
+                data_dict = student_data.to_dict()
                 return self.create_identity(**data_dict)
             else:
                 # Otherwise, extract attributes directly
                 return self.create_identity(
-                    name=getattr(employee_data, 'name', None),
-                    email=getattr(employee_data, 'email', None),
-                    employee_id=getattr(employee_data, 'employee_id', None),
-                    phone=getattr(employee_data, 'phone', None),
-                    is_active=getattr(employee_data, 'is_active', True)
+                    name=getattr(student_data, 'name', None),
+                    email=getattr(student_data, 'email', None),
+                    student_id=getattr(student_data, 'student_id', None),
+                    phone=getattr(student_data, 'phone', None),
+                    is_active=getattr(student_data, 'is_active', True)
                 )
         except AttributeError as e:
-            raise ValueError(f"Invalid employee data object: {e}")
+            raise ValueError(f"Invalid student data object: {e}")
     
     def update_identity(self, identity_id: int, **kwargs):
         """
@@ -108,22 +108,22 @@ class IdentityService:
             self.db.rollback()
             raise ValueError("Update failed due to constraint violation")
     
-    def update_identity_from_object(self, identity_id: int, employee_data):
+    def update_identity_from_object(self, identity_id: int, student_data):
         """
-        Update an identity using an employee data object
+        Update an identity using a student data object
         
-        employee_data should have attributes representing the fields to update
+        student_data should have attributes representing the fields to update
         """
-        if hasattr(employee_data, 'to_dict'):
+        if hasattr(student_data, 'to_dict'):
             # If the object has a to_dict method, use it
-            data_dict = employee_data.to_dict()
+            data_dict = student_data.to_dict()
             return self.update_identity(identity_id, **data_dict)
         else:
-            # Extract all non-None attributes from the employee data object
+            # Extract all non-None attributes from the student data object
             update_dict = {}
-            for attr in ['name', 'email', 'employee_id', 'phone', 'is_active']:
-                if hasattr(employee_data, attr):
-                    value = getattr(employee_data, attr)
+            for attr in ['name', 'email', 'student_id', 'phone', 'is_active']:
+                if hasattr(student_data, attr):
+                    value = getattr(student_data, attr)
                     if value is not None:
                         update_dict[attr] = value
             

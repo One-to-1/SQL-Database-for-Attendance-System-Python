@@ -102,8 +102,10 @@ identity_service = IdentityService(db_session)
 - `get_identity_by_id(identity_id)`: Retrieve an identity by ID
 - `get_identity_by_employee_id(employee_id)`: Retrieve an identity by employee ID
 - `get_identity_by_email(email)`: Retrieve an identity by email
-- `create_identity(name, email, employee_id, phone=None)`: Create a new identity
+- `create_identity(name, email, employee_id, phone=None, is_active=True)`: Create a new identity
+- `create_identity_from_object(employee_data)`: Create a new identity from an employee data object
 - `update_identity(identity_id, **kwargs)`: Update an identity's attributes
+- `update_identity_from_object(identity_id, employee_data)`: Update an identity using an employee data object
 - `deactivate_identity(identity_id)`: Mark an identity as inactive
 - `reactivate_identity(identity_id)`: Reactivate a previously deactivated identity
 - `delete_identity(identity_id)`: Permanently delete an identity
@@ -135,7 +137,77 @@ attendance_service = AttendanceService(db_session)
 
 ## Usage Examples
 
-### Creating and Managing Identities
+### Object-Oriented Approach with Employee Data
+
+The package supports an object-oriented approach for managing employee data:
+
+```python
+from sqlalchemy.orm import Session
+from src.database.connection import SessionLocal
+from src.services.identity_service import IdentityService
+
+# Custom employee data class
+class EmployeeData:
+    def __init__(self, name, email, employee_id, phone=None, is_active=True):
+        self.name = name
+        self.email = email
+        self.employee_id = employee_id
+        self.phone = phone
+        self.is_active = is_active
+        
+    def to_dict(self):
+        return {
+            'name': self.name,
+            'email': self.email,
+            'employee_id': self.employee_id,
+            'phone': self.phone,
+            'is_active': self.is_active
+        }
+        
+    @classmethod
+    def from_identity(cls, identity):
+        """Create an EmployeeData object from an Identity database model"""
+        return cls(
+            name=identity.name,
+            email=identity.email,
+            employee_id=identity.employee_id,
+            phone=identity.phone,
+            is_active=identity.is_active
+        )
+
+# Create a database session
+db = SessionLocal()
+identity_service = IdentityService(db)
+
+# Create a new employee object
+employee_data = EmployeeData(
+    name="John Doe",
+    email="john.doe@example.com",
+    employee_id="EMP001",
+    phone="555-123-4567"
+)
+
+# Method 1: Create identity directly from the employee object
+identity = identity_service.create_identity_from_object(employee_data)
+
+# Method 2: Create identity by unpacking the employee object
+# identity = identity_service.create_identity(**employee_data.to_dict())
+
+# Update an employee's information with a new object
+updated_data = EmployeeData(
+    name="John M. Doe",
+    email="john.doe@example.com",
+    employee_id="EMP001",
+    phone="555-987-6543"
+)
+updated_identity = identity_service.update_identity_from_object(identity.id, updated_data)
+
+# Find an identity and convert back to an employee object
+db_identity = identity_service.get_identity_by_employee_id("EMP001")
+retrieved_employee = EmployeeData.from_identity(db_identity)
+```
+
+### Creating and Managing Identities (Traditional Approach)
 
 ```python
 from sqlalchemy.orm import Session

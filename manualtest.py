@@ -8,8 +8,39 @@ sys.path.append(current_dir)
 
 # Import the necessary modules
 from src.database.connection import init_db, get_db, Base, engine
+from src.database.models import Identity, Attendance
 from src.services.identity_service import IdentityService
 from src.services.attendance_service import AttendanceService
+
+class EmployeeData:
+    """Class representing employee data for creating or retrieving identity records"""
+    def __init__(self, name, email, employee_id, phone=None, is_active=True):
+        self.name = name
+        self.email = email
+        self.employee_id = employee_id
+        self.phone = phone
+        self.is_active = is_active
+        
+    def to_dict(self):
+        """Convert employee data to dictionary for database operations"""
+        return {
+            'name': self.name,
+            'email': self.email,
+            'employee_id': self.employee_id,
+            'phone': self.phone,
+            'is_active': self.is_active
+        }
+        
+    @classmethod
+    def from_identity(cls, identity):
+        """Create an EmployeeData object from an Identity database model"""
+        return cls(
+            name=identity.name,
+            email=identity.email,
+            employee_id=identity.employee_id,
+            phone=identity.phone,
+            is_active=identity.is_active
+        )
 
 def main():
     print("Initializing database...")
@@ -23,22 +54,28 @@ def main():
     identity_service = IdentityService(db)
     attendance_service = AttendanceService(db)
     
+    # Create a test employee data object
+    test_employee = EmployeeData(
+        name="Test Employee",
+        email="test@example.com",
+        employee_id="TEST001",
+        phone="555-1234"
+    )
+    
     # Create a test identity
     print("Creating test identity...")
     try:
-        employee = identity_service.create_identity(
-            name="Test Employee",
-            email="test@example.com",
-            employee_id="TEST001",
-            phone="555-1234"
-        )
+        # Use the object-oriented approach to create identity
+        employee = identity_service.create_identity(**test_employee.to_dict())
         print(f"Created employee: {employee.name} (ID: {employee.id})")
     except Exception as e:
         print(f"Error creating identity: {e}")
         # Check if identity already exists
-        employee = identity_service.get_identity_by_employee_id("TEST001")
+        employee = identity_service.get_identity_by_employee_id(test_employee.employee_id)
         if employee:
-            print(f"Found existing employee: {employee.name} (ID: {employee.id})")
+            # Convert the database model back to our object representation
+            existing_employee = EmployeeData.from_identity(employee)
+            print(f"Found existing employee: {existing_employee.name} (ID: {employee.id})")
     
     if employee:
         # Record attendance for today

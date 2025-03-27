@@ -33,32 +33,97 @@ DATABASE_URL = "sqlite:///attendance.db"  # Default SQLite configuration
 3. Initialize the database:
 
 ```python
-from src.database.connection import init_db
+from src.api.easy_api import setup_database
 
-init_db()  # Creates all necessary tables
+# Only needed once at application startup
+setup_database()
 ```
 
 ## Package Structure
 
 ```
 ├── src/
+│   ├── api/
+│   │   ├── __init__.py
+│   │   └── easy_api.py         # Simplified API functions
 │   ├── database/
-│   │   ├── connection.py     # Database connection management
-│   │   └── models.py         # SQLAlchemy ORM models
+│   │   ├── connection.py       # Database connection management
+│   │   └── models.py           # SQLAlchemy ORM models
 │   ├── services/
-│   │   ├── identity_service.py    # Identity management services
-│   │   └── attendance_service.py  # Attendance management services
+│   │   ├── identity_service.py     # Identity management services
+│   │   └── attendance_service.py   # Attendance management services
 │   └── utils/
 └── tests/
-    ├── test_identity.py      # Identity service tests
-    └── test_attendance.py    # Attendance service tests
+    ├── test_identity.py        # Identity service tests
+    └── test_attendance.py      # Attendance service tests
 ```
 
 ## API Reference
 
-### Database Models
+### Simplified API (Recommended)
 
-#### Identity
+The package offers a simplified API through the `src.api.easy_api` module, providing easy-to-use functions for common tasks without having to manage database sessions or service instances.
+
+```python
+from src.api.easy_api import (
+    setup_database,
+    create_employee,
+    get_employee,
+    record_check_in,
+    record_check_out,
+    get_attendance_history,
+    EmployeeData  # Object-oriented approach
+)
+```
+
+#### EmployeeData Class
+
+The `EmployeeData` class provides an object-oriented approach to working with employee records:
+
+```python
+# Create employee object
+employee = EmployeeData(
+    name="Jane Doe",
+    email="jane.doe@example.com",
+    employee_id="EMP001",
+    phone="555-1234"
+)
+
+# Convert from database model
+employee = EmployeeData.from_identity(identity_model)
+
+# Convert to dictionary
+employee_dict = employee.to_dict()
+```
+
+#### Database Setup
+
+- `setup_database()`: Initialize the database with all required tables
+
+#### Employee Management
+
+- `create_employee(name, email, employee_id, phone=None)`: Create a new employee
+- `get_employee(employee_id=None, email=None)`: Get an employee by ID or email
+- `update_employee(employee_id, name=None, email=None, phone=None)`: Update employee details
+- `deactivate_employee(employee_id)`: Deactivate an employee (soft delete)
+- `reactivate_employee(employee_id)`: Reactivate a previously deactivated employee
+- `get_all_employees(include_inactive=False)`: Get all employees
+
+#### Attendance Management
+
+- `record_check_in(employee_id, check_in_time=None)`: Record employee check-in
+- `record_check_out(employee_id, check_out_time=None)`: Record employee check-out
+- `mark_attendance(employee_id, attendance_date=None, status="Present")`: Mark attendance for a date
+- `get_attendance_history(employee_id, start_date=None, end_date=None)`: Get attendance history
+- `get_attendance_report(report_date=None, include_inactive=False)`: Generate attendance report
+
+### Advanced API
+
+For more advanced usage, the package also provides direct access to the underlying services and models. 
+
+#### Database Models
+
+##### Identity
 
 The `Identity` model represents an employee or user in the system.
 
@@ -71,7 +136,7 @@ The `Identity` model represents an employee or user in the system.
 - `created_at`: Creation timestamp
 - `is_active`: Boolean flag for active status
 
-#### Attendance
+##### Attendance
 
 The `Attendance` model represents attendance records for identities.
 
@@ -83,7 +148,7 @@ The `Attendance` model represents attendance records for identities.
 - `check_out`: Check-out timestamp
 - `status`: Status indicator (Present, Absent, Late, etc.)
 
-### Identity Service
+#### Identity Service
 
 The `IdentityService` class provides methods for managing employee identities.
 
@@ -110,7 +175,7 @@ identity_service = IdentityService(db_session)
 - `reactivate_identity(identity_id)`: Reactivate a previously deactivated identity
 - `delete_identity(identity_id)`: Permanently delete an identity
 
-### Attendance Service
+#### Attendance Service
 
 The `AttendanceService` class provides methods for managing attendance records.
 
@@ -137,9 +202,150 @@ attendance_service = AttendanceService(db_session)
 
 ## Usage Examples
 
-### Object-Oriented Approach with Employee Data
+### Using the Simplified API with Object-Oriented Approach (Recommended)
 
-The package supports an object-oriented approach for managing employee data:
+```python
+from src.api.easy_api import (
+    setup_database,
+    create_employee,
+    get_employee,
+    record_check_in,
+    record_check_out,
+    get_attendance_history,
+    mark_attendance,
+    get_attendance_report,
+    EmployeeData
+)
+from datetime import datetime, timedelta
+
+# Setup the database
+setup_database()
+
+# Create employee objects
+first_employee = EmployeeData(
+    name="Jane Doe",
+    email="jane.doe@example.com",
+    employee_id="EMP002",
+    phone="555-6789"
+)
+
+second_employee = EmployeeData(
+    name="John Smith",
+    email="john.smith@example.com",
+    employee_id="EMP003",
+    phone="555-1234"
+)
+
+# Helper function to register employees
+def register_employee(employee_data):
+    try:
+        # Try to create a new employee
+        employee = create_employee(
+            name=employee_data.name,
+            email=employee_data.email,
+            employee_id=employee_data.employee_id,
+            phone=employee_data.phone
+        )
+        return employee
+    except ValueError:
+        # Employee might already exist
+        employee = get_employee(employee_id=employee_data.employee_id)
+        if employee:
+            return employee
+        else:
+            raise ValueError(f"Could not create/retrieve employee {employee_data.employee_id}")
+
+# Register employees
+employee1 = register_employee(first_employee)
+employee2 = register_employee(second_employee)
+
+# Record check-in and check-out for first employee
+check_in_data = record_check_in(employee_id=employee1.employee_id)
+print(f"Check-in recorded at: {check_in_data['check_in']}")
+
+# Record check-out (8 hours later)
+check_out_time = datetime.now() + timedelta(hours=8)
+check_out_data = record_check_out(
+    employee_id=employee1.employee_id,
+    check_out_time=check_out_time
+)
+print(f"Check-out recorded at: {check_out_data['check_out']}")
+
+# Mark attendance for second employee without check-in/check-out details
+mark_attendance(
+    employee_id=employee2.employee_id,
+    status="Present"
+)
+
+# Get attendance history
+history = get_attendance_history(employee_id=employee1.employee_id)
+for record in history:
+    print(f"Date: {record['date']}, Status: {record['status']}")
+    if record['hours_worked']:
+        print(f"Hours worked: {record['hours_worked']}")
+
+# Generate an attendance report for today
+report = get_attendance_report()
+print(f"Present employees: {len(report['present'])}")
+print(f"Absent employees: {len(report['absent'])}")
+```
+
+### Using the Simplified API (Procedural Style)
+
+```python
+from src.api.easy_api import (
+    setup_database,
+    create_employee,
+    get_employee,
+    record_check_in,
+    record_check_out,
+    get_attendance_history,
+    get_attendance_report
+)
+from datetime import datetime, timedelta
+
+# Setup the database (only needed once)
+setup_database()
+
+# Create a new employee
+try:
+    employee = create_employee(
+        name="John Smith", 
+        email="john.smith@example.com", 
+        employee_id="EMP003", 
+        phone="555-4321"
+    )
+    print(f"Created employee: {employee}")
+except ValueError as e:
+    # Handle the case where the employee might already exist
+    employee = get_employee(employee_id="EMP003")
+    print(f"Found existing employee: {employee}")
+
+# Record check-in
+check_in_data = record_check_in(employee_id="EMP003")
+print(f"Check-in recorded at: {check_in_data['check_in']}")
+
+# Record check-out (8 hours later)
+check_out_time = datetime.now() + timedelta(hours=8)
+check_out_data = record_check_out(employee_id="EMP003", check_out_time=check_out_time)
+print(f"Check-out recorded at: {check_out_data['check_out']}")
+
+# Get attendance history
+history = get_attendance_history(employee_id="EMP003")
+for record in history:
+    print(f"Date: {record['date']}, Status: {record['status']}")
+    if record['hours_worked']:
+        print(f"Hours worked: {record['hours_worked']}")
+
+# Generate an attendance report for today
+report = get_attendance_report()
+print(f"Present employees: {len(report['present'])}")
+print(f"Absent employees: {len(report['absent'])}")
+```
+
+### Advanced Object-Oriented Approach with Service Classes
+
+For more advanced usage, you can work directly with the service classes:
 
 ```python
 from sqlalchemy.orm import Session
@@ -207,40 +413,7 @@ db_identity = identity_service.get_identity_by_employee_id("EMP001")
 retrieved_employee = EmployeeData.from_identity(db_identity)
 ```
 
-### Creating and Managing Identities (Traditional Approach)
-
-```python
-from sqlalchemy.orm import Session
-from src.database.connection import SessionLocal
-from src.services.identity_service import IdentityService
-
-# Create a database session
-db = SessionLocal()
-identity_service = IdentityService(db)
-
-# Create a new identity
-employee = identity_service.create_identity(
-    name="John Doe",
-    email="john.doe@example.com",
-    employee_id="EMP001",
-    phone="555-123-4567"
-)
-
-# Update an identity
-updated_employee = identity_service.update_identity(
-    employee.id,
-    name="John M. Doe",
-    phone="555-987-6543"
-)
-
-# Find an identity by employee ID
-found_employee = identity_service.get_identity_by_employee_id("EMP001")
-
-# Deactivate an identity
-identity_service.deactivate_identity(employee.id)
-```
-
-### Managing Attendance Records
+### Managing Attendance Records (Advanced)
 
 ```python
 from datetime import date, datetime, timedelta
@@ -313,6 +486,22 @@ Run the test suite using pytest:
 ```bash
 pytest
 ```
+
+## Quick Start Guide
+
+To quickly get started with the attendance system:
+
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. Run the example script to see the API in action:
+   ```bash
+   python easy_example.py
+   ```
+
+3. Integrate the package into your own application by importing from the `src.api.easy_api` module.
 
 ## License
 

@@ -1,44 +1,37 @@
-class Attendance:
-    def __init__(self, student_id, date, status):
-        self.student_id = student_id
-        self.date = date
-        self.status = status
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, Date
+from sqlalchemy.orm import relationship
+import datetime
+from .connection import Base
 
-    def save(self):
-        # Logic to save attendance record to the database
-        pass
+class Identity(Base):
+    __tablename__ = "identities"
 
-    @classmethod
-    def get_attendance(cls, student_id, date):
-        # Logic to retrieve attendance record from the database
-        pass
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    email = Column(String, unique=True, index=True)
+    phone = Column(String, nullable=True)
+    employee_id = Column(String, unique=True, index=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    is_active = Column(Boolean, default=True)
+    
+    # Relationship with Attendance
+    attendances = relationship("Attendance", back_populates="identity", cascade="all, delete-orphan")
+    
+    def __repr__(self):
+        return f"<Identity {self.name} ({self.employee_id})>"
 
-    @classmethod
-    def update_attendance(cls, student_id, date, status):
-        # Logic to update attendance record in the database
-        pass
+class Attendance(Base):
+    __tablename__ = "attendances"
 
-
-class Identity:
-    def __init__(self, identity_id, name):
-        self.identity_id = identity_id
-        self.name = name
-
-    def save(self):
-        # Logic to save identity to the database
-        pass
-
-    @classmethod
-    def remove_identity(cls, identity_id):
-        # Logic to remove identity from the database
-        pass
-
-    @classmethod
-    def get_identity(cls, identity_id):
-        # Logic to retrieve identity from the database
-        pass
-
-    @classmethod
-    def add_identity(cls, identity_id, name):
-        # Logic to add new identity to the database
-        pass
+    id = Column(Integer, primary_key=True, index=True)
+    identity_id = Column(Integer, ForeignKey("identities.id"))
+    date = Column(Date, nullable=False)
+    check_in = Column(DateTime, nullable=True)
+    check_out = Column(DateTime, nullable=True)
+    status = Column(String, nullable=True)  # E.g., "Present", "Absent", "Late", etc.
+    
+    # Relationship with Identity
+    identity = relationship("Identity", back_populates="attendances")
+    
+    def __repr__(self):
+        return f"<Attendance {self.identity_id} on {self.date}>"

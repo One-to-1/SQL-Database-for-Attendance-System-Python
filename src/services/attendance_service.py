@@ -7,8 +7,8 @@ import os
 # Add parent directory to path to import models
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from database.models import Attendance, Identity
-# Change the import to directly import from the file, not through package
-from src.services.identity_service import IdentityService
+# Direct import from the identity_service.py file
+from services.identity_service import IdentityService
 
 class AttendanceService:
     """
